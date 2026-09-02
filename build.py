@@ -28,6 +28,7 @@ SRC = ROOT / "webflow-export"
 CONTENT_DIR = ROOT / "content"
 EXPERTS_DIR = CONTENT_DIR / "experts"
 SETTINGS_FILE = CONTENT_DIR / "settings.yml"
+PAGES_DIR = CONTENT_DIR / "pages"
 CV_DIR = ROOT / "cv-publications"
 PHOTOS = ROOT / "images" / "experts"
 ADMIN_SRC = ROOT / "admin_src"
@@ -65,6 +66,148 @@ def apply_settings(soup, is_en):
     for a in soup.find_all("a", href=re.compile(r"^tel:")):
         a["href"] = f"tel:{SETTINGS['phone_tel']}"
         a.string = SETTINGS["phone_display"]
+
+# --- 0b. Page main text (editable via the CMS: content/pages/*.yml) ---------
+# Extends the same idea as apply_settings above to the prose (headings, lead
+# paragraphs, card text) of the 8 "content" pages -- everything except the
+# expert listing/detail pages, the structured Presse/Links pages, and the
+# legal pages, which stay hard-coded. Layout/markup is never touched, only
+# the text inside elements the template already has. One YAML file per page,
+# holding both languages as sibling _de/_en fields (same convention as
+# content/experts/*.yml's name_de/name_en etc).
+PAGE_CONTENT = {f.stem: yaml.safe_load(f.read_text(encoding="utf-8"))
+                 for f in sorted(PAGES_DIR.glob("*.yml"))}
+
+# Maps each in-scope page's DE and EN template filename (as used as keys in
+# PAGE_MAP below) to its content/pages/<slug>.yml slug.
+PAGE_CONTENT_SLUGS = {
+    "index.html": "home",             "en/home.html": "home",
+    "aktuelles.html": "aktuelles",    "en/news.html": "aktuelles",
+    "ueber-uns.html": "ueber-uns",    "en/about.html": "ueber-uns",
+    "formate.html": "formate",        "en/formats.html": "formate",
+    "kontakt.html": "kontakt",        "en/contact.html": "kontakt",
+    "seminare.html": "seminare",      "en/seminars.html": "seminare",
+    "simulationen.html": "simulationen", "en/simulations.html": "simulationen",
+    "consulting.html": "consulting",  "en/consulting.html": "consulting",
+}
+
+def _set_text(el, value):
+    """Overwrite an element's text in place if both the element and the
+    value exist. Some fields only apply to one language (see the "home"
+    branch below), and some page elements are deliberately left out of a
+    section's index list (see the "formate" branch) -- both come through
+    here as a no-op rather than a crash."""
+    if el is not None and value is not None:
+        el.string = value
+
+def apply_page_content(soup, slug, is_en):
+    """Overwrite the CMS-editable main text of one of the 8 in-scope content
+    pages with the current values from content/pages/<slug>.yml. Every
+    element is looked up by class, the same way apply_settings does, but
+    several classes (ssc-kicker, ssc-h2, ssc-p, ssc-card-title/-text) repeat
+    several times on one page, so those are matched by their position in
+    document order -- found_all(...)[i] -- instead of find(), which would
+    only ever hit the first occurrence."""
+    d = PAGE_CONTENT[slug]
+    suf = "en" if is_en else "de"
+
+    if slug == "home":
+        _set_text(soup.find(class_="ssc-eyebrow"), d[f"eyebrow_{suf}"])
+        _set_text(soup.find(class_="ssc-hero-title"), d[f"hero_title_{suf}"])
+        _set_text(soup.find(class_="ssc-hero-lead"), d[f"hero_lead_{suf}"])
+        kick = soup.find_all(class_="ssc-kicker")
+        h2 = soup.find_all(class_="ssc-h2")
+        lead = soup.find_all(class_="ssc-section-lead")
+        _set_text(kick[0] if len(kick) > 0 else None, d[f"segments_kicker_{suf}"])
+        _set_text(h2[0] if len(h2) > 0 else None, d[f"segments_h2_{suf}"])
+        _set_text(lead[0] if len(lead) > 0 else None, d[f"segments_lead_{suf}"])
+        card_titles = soup.find_all(class_="ssc-card-title")
+        card_texts = soup.find_all(class_="ssc-card-text")
+        for i in range(3):
+            _set_text(card_titles[i] if i < len(card_titles) else None, d[f"card{i+1}_title_{suf}"])
+            _set_text(card_texts[i] if i < len(card_texts) else None, d[f"card{i+1}_text_{suf}"])
+        # "Das Netzwerk" ("The Network") section only exists on the German
+        # homepage -- en/home.html has no matching section at all -- so
+        # these three fields are German-only.
+        if not is_en:
+            _set_text(kick[1] if len(kick) > 1 else None, d["network_kicker_de"])
+            _set_text(h2[1] if len(h2) > 1 else None, d["network_h2_de"])
+            _set_text(lead[1] if len(lead) > 1 else None, d["network_lead_de"])
+        _set_text(soup.find(class_="ssc-band-title"), d[f"band_title_{suf}"])
+        _set_text(soup.find(class_="ssc-band-lead"), d[f"band_lead_{suf}"])
+
+    elif slug == "aktuelles":
+        _set_text(soup.find(class_="ssc-eyebrow"), d[f"eyebrow_{suf}"])
+        _set_text(soup.find(class_="ssc-pagetitle"), d[f"pagetitle_{suf}"])
+        _set_text(soup.find(class_="ssc-pagelead"), d[f"pagelead_{suf}"])
+        _set_text(soup.find(class_="ssc-h3"), d[f"empty_title_{suf}"])
+        _set_text(soup.find(class_="ssc-p"), d[f"empty_text_{suf}"])
+
+    elif slug == "ueber-uns":
+        _set_text(soup.find(class_="ssc-eyebrow"), d[f"eyebrow_{suf}"])
+        _set_text(soup.find(class_="ssc-pagetitle"), d[f"pagetitle_{suf}"])
+        _set_text(soup.find(class_="ssc-pagelead"), d[f"pagelead_{suf}"])
+        p = soup.find_all(class_="ssc-p")
+        for i in range(3):
+            _set_text(p[i] if i < len(p) else None, d[f"intro_p{i+1}_{suf}"])
+        _set_text(soup.find(class_="ssc-figure-cap"), d[f"figure_caption_{suf}"])
+        _set_text(soup.find(class_="ssc-kicker"), d[f"segments_kicker_{suf}"])
+        _set_text(soup.find(class_="ssc-h2"), d[f"segments_h2_{suf}"])
+        card_titles = soup.find_all(class_="ssc-card-title")
+        card_texts = soup.find_all(class_="ssc-card-text")
+        for i in range(3):
+            _set_text(card_titles[i] if i < len(card_titles) else None, d[f"card{i+1}_title_{suf}"])
+            _set_text(card_texts[i] if i < len(card_texts) else None, d[f"card{i+1}_text_{suf}"])
+
+    elif slug == "formate":
+        _set_text(soup.find(class_="ssc-eyebrow"), d[f"eyebrow_{suf}"])
+        _set_text(soup.find(class_="ssc-pagetitle"), d[f"pagetitle_{suf}"])
+        _set_text(soup.find(class_="ssc-pagelead"), d[f"pagelead_{suf}"])
+        kick = soup.find_all(class_="ssc-kicker")
+        h2 = soup.find_all(class_="ssc-h2")
+        p = soup.find_all(class_="ssc-p")
+        for i, name in enumerate(("s1", "s2", "s3", "s4", "s5")):
+            _set_text(kick[i] if i < len(kick) else None, d[f"{name}_kicker_{suf}"])
+            _set_text(h2[i] if i < len(h2) else None, d[f"{name}_h2_{suf}"])
+        # Body paragraphs. Sections 1-3 line up 1:1 between languages:
+        _set_text(p[0] if len(p) > 0 else None, d[f"s1_text_{suf}"])
+        _set_text(p[1] if len(p) > 1 else None, d[f"s2_text1_{suf}"])
+        _set_text(p[2] if len(p) > 2 else None, d[f"s2_text2_{suf}"])
+        _set_text(p[3] if len(p) > 3 else None, d[f"s3_text_{suf}"])
+        # p[4] (and DE's extra p[5]) = the Vortraege/Lectures body text --
+        # deliberately NOT CMS-editable: the German version has two
+        # paragraphs, each with its own inline link (to presse.html /
+        # expertinnen.html); English merges these into one paragraph with a
+        # different inline link (to en/experts.html). Not a 1:1 translation,
+        # and both contain inline <a> tags a plain-text field would destroy
+        # -- left hard-coded in the template. Section 5 (Weltweit/Worldwide,
+        # last paragraph) is unaffected and picks up at whichever index that
+        # language's list actually put it.
+        _set_text(p[5] if is_en and len(p) > 5 else (p[6] if not is_en and len(p) > 6 else None),
+                   d[f"s5_text_{suf}"])
+
+    elif slug == "kontakt":
+        # Hero only -- see the scope note in content/pages/kontakt.yml /
+        # the task brief: the address block below it is settings.yml-driven
+        # (apply_settings) and its ssc-h3/ssc-note text stays untouched.
+        _set_text(soup.find(class_="ssc-eyebrow"), d[f"eyebrow_{suf}"])
+        _set_text(soup.find(class_="ssc-pagetitle"), d[f"pagetitle_{suf}"])
+        _set_text(soup.find(class_="ssc-pagelead"), d[f"pagelead_{suf}"])
+
+    elif slug in ("seminare", "simulationen", "consulting"):
+        _set_text(soup.find(class_="ssc-eyebrow"), d[f"eyebrow_{suf}"])
+        _set_text(soup.find(class_="ssc-pagetitle"), d[f"pagetitle_{suf}"])
+        _set_text(soup.find(class_="ssc-pagelead"), d[f"pagelead_{suf}"])
+        p = soup.find_all(class_="ssc-p")
+        _set_text(p[0] if len(p) > 0 else None, d[f"p1_{suf}"])
+        _set_text(p[1] if len(p) > 1 else None, d[f"p2_{suf}"])
+        if slug != "seminare":
+            _set_text(p[2] if len(p) > 2 else None, d[f"p3_{suf}"])
+        # seminare/seminars' 3rd paragraph is intentionally left off the CMS:
+        # the English version has an inline link to en/links.html ("...can
+        # be found here.") that the German version doesn't have at all, so
+        # it isn't a 1:1 translation and a plain-text field would destroy
+        # that link. See content/pages/seminare.yml.
 
 # --- 1. Page map: source file (relative to SRC) -> clean output folder ('' = site root) ----
 PAGE_MAP = {
@@ -410,6 +553,12 @@ for src_file, clean in PAGE_MAP.items():
     is_en = src_file.startswith("en/")
     rewrite_links_in_soup(soup, is_en)
     apply_lang_switch(soup, clean, is_en)
+
+    # Main text content of the 8 in-scope "content" pages (editable via the
+    # CMS: content/pages/*.yml) -- see apply_page_content above.
+    content_slug = PAGE_CONTENT_SLUGS.get(src_file)
+    if content_slug:
+        apply_page_content(soup, content_slug, is_en)
 
     # Contact form -> Formspree
     form = soup.find("form")

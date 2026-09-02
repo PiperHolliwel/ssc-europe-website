@@ -36,6 +36,200 @@ collections:
           - { label: "Phone number (as shown to visitors)", name: "phone_display", widget: "string" }
           - { label: "Phone number (for click-to-call links, digits only, e.g. +493065791250)", name: "phone_tel", widget: "string" }
 
+  - name: "pages"
+    label: "Page content"
+    delete: false
+    editor:
+      preview: false
+    files:
+      - name: "home"
+        label: "Homepage"
+        file: "content/pages/home.yml"
+        fields:
+          - { label: "Eyebrow tag above the heading (German)", name: "eyebrow_de", widget: "string" }
+          - { label: "Eyebrow tag above the heading (English)", name: "eyebrow_en", widget: "string" }
+          - { label: "Hero heading (German)", name: "hero_title_de", widget: "string" }
+          - { label: "Hero heading (English)", name: "hero_title_en", widget: "string" }
+          - { label: "Hero lead paragraph (German)", name: "hero_lead_de", widget: "text" }
+          - { label: "Hero lead paragraph (English)", name: "hero_lead_en", widget: "text" }
+          - { label: "\"Our segments\" kicker (German)", name: "segments_kicker_de", widget: "string" }
+          - { label: "\"Our segments\" kicker (English)", name: "segments_kicker_en", widget: "string" }
+          - { label: "\"Our segments\" heading (German)", name: "segments_h2_de", widget: "string" }
+          - { label: "\"Our segments\" heading (English)", name: "segments_h2_en", widget: "string" }
+          - { label: "\"Our segments\" lead paragraph (German)", name: "segments_lead_de", widget: "text" }
+          - { label: "\"Our segments\" lead paragraph (English)", name: "segments_lead_en", widget: "text" }
+          - { label: "Card 1 (Seminars) title (German)", name: "card1_title_de", widget: "string" }
+          - { label: "Card 1 (Seminars) title (English)", name: "card1_title_en", widget: "string" }
+          - { label: "Card 1 (Seminars) text (German)", name: "card1_text_de", widget: "text" }
+          - { label: "Card 1 (Seminars) text (English)", name: "card1_text_en", widget: "text" }
+          - { label: "Card 2 (Simulations) title (German)", name: "card2_title_de", widget: "string" }
+          - { label: "Card 2 (Simulations) title (English)", name: "card2_title_en", widget: "string" }
+          - { label: "Card 2 (Simulations) text (German)", name: "card2_text_de", widget: "text" }
+          - { label: "Card 2 (Simulations) text (English)", name: "card2_text_en", widget: "text" }
+          - { label: "Card 3 (Consulting) title (German)", name: "card3_title_de", widget: "string" }
+          - { label: "Card 3 (Consulting) title (English)", name: "card3_title_en", widget: "string" }
+          - { label: "Card 3 (Consulting) text (German)", name: "card3_text_de", widget: "text" }
+          - { label: "Card 3 (Consulting) text (English)", name: "card3_text_en", widget: "text" }
+          - { label: "\"The Network\" kicker (German only -- this section doesn't exist on the English homepage)", name: "network_kicker_de", widget: "string" }
+          - { label: "\"The Network\" heading (German only -- this section doesn't exist on the English homepage)", name: "network_h2_de", widget: "string" }
+          - { label: "\"The Network\" lead paragraph (German only -- this section doesn't exist on the English homepage)", name: "network_lead_de", widget: "text" }
+          - { label: "Bottom banner heading (German)", name: "band_title_de", widget: "string" }
+          - { label: "Bottom banner heading (English)", name: "band_title_en", widget: "string" }
+          - { label: "Bottom banner text (German)", name: "band_lead_de", widget: "text" }
+          - { label: "Bottom banner text (English)", name: "band_lead_en", widget: "text" }
+
+      - name: "aktuelles"
+        label: "News"
+        file: "content/pages/aktuelles.yml"
+        fields:
+          - { label: "Eyebrow tag above the heading (German)", name: "eyebrow_de", widget: "string" }
+          - { label: "Eyebrow tag above the heading (English)", name: "eyebrow_en", widget: "string" }
+          - { label: "Page heading (German)", name: "pagetitle_de", widget: "string" }
+          - { label: "Page heading (English)", name: "pagetitle_en", widget: "string" }
+          - { label: "Page lead paragraph (German)", name: "pagelead_de", widget: "text" }
+          - { label: "Page lead paragraph (English)", name: "pagelead_en", widget: "text" }
+          - { label: "\"No entries yet\" heading (German)", name: "empty_title_de", widget: "string" }
+          - { label: "\"No entries yet\" heading (English)", name: "empty_title_en", widget: "string" }
+          - { label: "\"No entries yet\" text (German)", name: "empty_text_de", widget: "text" }
+          - { label: "\"No entries yet\" text (English)", name: "empty_text_en", widget: "text" }
+
+      - name: "ueber-uns"
+        label: "About us"
+        file: "content/pages/ueber-uns.yml"
+        fields:
+          - { label: "Eyebrow tag above the heading (German)", name: "eyebrow_de", widget: "string" }
+          - { label: "Eyebrow tag above the heading (English)", name: "eyebrow_en", widget: "string" }
+          - { label: "Page heading (German)", name: "pagetitle_de", widget: "string" }
+          - { label: "Page heading (English)", name: "pagetitle_en", widget: "string" }
+          - { label: "Page lead paragraph (German)", name: "pagelead_de", widget: "text" }
+          - { label: "Page lead paragraph (English)", name: "pagelead_en", widget: "text" }
+          - { label: "Intro paragraph 1 (German)", name: "intro_p1_de", widget: "text" }
+          - { label: "Intro paragraph 1 (English)", name: "intro_p1_en", widget: "text" }
+          - { label: "Intro paragraph 2 (German)", name: "intro_p2_de", widget: "text" }
+          - { label: "Intro paragraph 2 (English)", name: "intro_p2_en", widget: "text" }
+          - { label: "Intro paragraph 3 (German)", name: "intro_p3_de", widget: "text" }
+          - { label: "Intro paragraph 3 (English)", name: "intro_p3_en", widget: "text" }
+          - { label: "Structure diagram caption (German)", name: "figure_caption_de", widget: "string" }
+          - { label: "Structure diagram caption (English)", name: "figure_caption_en", widget: "string" }
+          - { label: "\"Our three segments\" kicker (German)", name: "segments_kicker_de", widget: "string" }
+          - { label: "\"Our three segments\" kicker (English)", name: "segments_kicker_en", widget: "string" }
+          - { label: "\"Our three segments\" heading (German)", name: "segments_h2_de", widget: "string" }
+          - { label: "\"Our three segments\" heading (English)", name: "segments_h2_en", widget: "string" }
+          - { label: "Card 1 (Seminars) title (German)", name: "card1_title_de", widget: "string" }
+          - { label: "Card 1 (Seminars) title (English)", name: "card1_title_en", widget: "string" }
+          - { label: "Card 1 (Seminars) text (German)", name: "card1_text_de", widget: "text" }
+          - { label: "Card 1 (Seminars) text (English)", name: "card1_text_en", widget: "text" }
+          - { label: "Card 2 (Simulations) title (German)", name: "card2_title_de", widget: "string" }
+          - { label: "Card 2 (Simulations) title (English)", name: "card2_title_en", widget: "string" }
+          - { label: "Card 2 (Simulations) text (German)", name: "card2_text_de", widget: "text" }
+          - { label: "Card 2 (Simulations) text (English)", name: "card2_text_en", widget: "text" }
+          - { label: "Card 3 (Consulting) title (German)", name: "card3_title_de", widget: "string" }
+          - { label: "Card 3 (Consulting) title (English)", name: "card3_title_en", widget: "string" }
+          - { label: "Card 3 (Consulting) text (German)", name: "card3_text_de", widget: "text" }
+          - { label: "Card 3 (Consulting) text (English)", name: "card3_text_en", widget: "text" }
+
+      - name: "formate"
+        label: "Formats"
+        file: "content/pages/formate.yml"
+        fields:
+          - { label: "Eyebrow tag above the heading (German)", name: "eyebrow_de", widget: "string" }
+          - { label: "Eyebrow tag above the heading (English)", name: "eyebrow_en", widget: "string" }
+          - { label: "Page heading (German)", name: "pagetitle_de", widget: "string" }
+          - { label: "Page heading (English)", name: "pagetitle_en", widget: "string" }
+          - { label: "Page lead paragraph (German)", name: "pagelead_de", widget: "text" }
+          - { label: "Page lead paragraph (English)", name: "pagelead_en", widget: "text" }
+          - { label: "Section 1 (Summer schools) kicker (German)", name: "s1_kicker_de", widget: "string" }
+          - { label: "Section 1 (Summer schools) kicker (English)", name: "s1_kicker_en", widget: "string" }
+          - { label: "Section 1 (Summer schools) heading (German)", name: "s1_h2_de", widget: "string" }
+          - { label: "Section 1 (Summer schools) heading (English)", name: "s1_h2_en", widget: "string" }
+          - { label: "Section 1 (Summer schools) text (German)", name: "s1_text_de", widget: "text" }
+          - { label: "Section 1 (Summer schools) text (English)", name: "s1_text_en", widget: "text" }
+          - { label: "Section 2 (Simulations) kicker (German)", name: "s2_kicker_de", widget: "string" }
+          - { label: "Section 2 (Simulations) kicker (English)", name: "s2_kicker_en", widget: "string" }
+          - { label: "Section 2 (Simulations) heading (German)", name: "s2_h2_de", widget: "string" }
+          - { label: "Section 2 (Simulations) heading (English)", name: "s2_h2_en", widget: "string" }
+          - { label: "Section 2 (Simulations) text, paragraph 1 (German)", name: "s2_text1_de", widget: "text" }
+          - { label: "Section 2 (Simulations) text, paragraph 1 (English)", name: "s2_text1_en", widget: "text" }
+          - { label: "Section 2 (Simulations) text, paragraph 2 (German)", name: "s2_text2_de", widget: "text" }
+          - { label: "Section 2 (Simulations) text, paragraph 2 (English)", name: "s2_text2_en", widget: "text" }
+          - { label: "Section 3 (Simulation development workshops) kicker (German)", name: "s3_kicker_de", widget: "string" }
+          - { label: "Section 3 (Simulation development workshops) kicker (English)", name: "s3_kicker_en", widget: "string" }
+          - { label: "Section 3 (Simulation development workshops) heading (German)", name: "s3_h2_de", widget: "string" }
+          - { label: "Section 3 (Simulation development workshops) heading (English)", name: "s3_h2_en", widget: "string" }
+          - { label: "Section 3 (Simulation development workshops) text (German)", name: "s3_text_de", widget: "text" }
+          - { label: "Section 3 (Simulation development workshops) text (English)", name: "s3_text_en", widget: "text" }
+          - { label: "Section 4 (Lectures) kicker (German)", name: "s4_kicker_de", widget: "string" }
+          - { label: "Section 4 (Lectures) kicker (English)", name: "s4_kicker_en", widget: "string" }
+          - { label: "Section 4 (Lectures) heading (German)", name: "s4_h2_de", widget: "string" }
+          - { label: "Section 4 (Lectures) heading (English)", name: "s4_h2_en", widget: "string" }
+          - { label: "Section 5 (Worldwide) kicker (German)", name: "s5_kicker_de", widget: "string" }
+          - { label: "Section 5 (Worldwide) kicker (English)", name: "s5_kicker_en", widget: "string" }
+          - { label: "Section 5 (Worldwide) heading (German)", name: "s5_h2_de", widget: "string" }
+          - { label: "Section 5 (Worldwide) heading (English)", name: "s5_h2_en", widget: "string" }
+          - { label: "Section 5 (Worldwide) text (German)", name: "s5_text_de", widget: "text" }
+          - { label: "Section 5 (Worldwide) text (English)", name: "s5_text_en", widget: "text" }
+
+      - name: "kontakt"
+        label: "Contact"
+        file: "content/pages/kontakt.yml"
+        fields:
+          - { label: "Eyebrow tag above the heading (German)", name: "eyebrow_de", widget: "string" }
+          - { label: "Eyebrow tag above the heading (English)", name: "eyebrow_en", widget: "string" }
+          - { label: "Page heading (German)", name: "pagetitle_de", widget: "string" }
+          - { label: "Page heading (English)", name: "pagetitle_en", widget: "string" }
+          - { label: "Page lead paragraph (German)", name: "pagelead_de", widget: "text" }
+          - { label: "Page lead paragraph (English)", name: "pagelead_en", widget: "text" }
+
+      - name: "seminare"
+        label: "Seminars"
+        file: "content/pages/seminare.yml"
+        fields:
+          - { label: "Eyebrow tag above the heading (German)", name: "eyebrow_de", widget: "string" }
+          - { label: "Eyebrow tag above the heading (English)", name: "eyebrow_en", widget: "string" }
+          - { label: "Page heading (German)", name: "pagetitle_de", widget: "string" }
+          - { label: "Page heading (English)", name: "pagetitle_en", widget: "string" }
+          - { label: "Page lead paragraph (German)", name: "pagelead_de", widget: "text" }
+          - { label: "Page lead paragraph (English)", name: "pagelead_en", widget: "text" }
+          - { label: "Body paragraph 1 (German)", name: "p1_de", widget: "text" }
+          - { label: "Body paragraph 1 (English)", name: "p1_en", widget: "text" }
+          - { label: "Body paragraph 2 (German)", name: "p2_de", widget: "text" }
+          - { label: "Body paragraph 2 (English)", name: "p2_en", widget: "text" }
+
+      - name: "simulationen"
+        label: "Simulations"
+        file: "content/pages/simulationen.yml"
+        fields:
+          - { label: "Eyebrow tag above the heading (German)", name: "eyebrow_de", widget: "string" }
+          - { label: "Eyebrow tag above the heading (English)", name: "eyebrow_en", widget: "string" }
+          - { label: "Page heading (German)", name: "pagetitle_de", widget: "string" }
+          - { label: "Page heading (English)", name: "pagetitle_en", widget: "string" }
+          - { label: "Page lead paragraph (German)", name: "pagelead_de", widget: "text" }
+          - { label: "Page lead paragraph (English)", name: "pagelead_en", widget: "text" }
+          - { label: "Body paragraph 1 (German)", name: "p1_de", widget: "text" }
+          - { label: "Body paragraph 1 (English)", name: "p1_en", widget: "text" }
+          - { label: "Body paragraph 2 (German)", name: "p2_de", widget: "text" }
+          - { label: "Body paragraph 2 (English)", name: "p2_en", widget: "text" }
+          - { label: "Body paragraph 3 (German)", name: "p3_de", widget: "text" }
+          - { label: "Body paragraph 3 (English)", name: "p3_en", widget: "text" }
+
+      - name: "consulting"
+        label: "Consulting"
+        file: "content/pages/consulting.yml"
+        fields:
+          - { label: "Eyebrow tag above the heading (German)", name: "eyebrow_de", widget: "string" }
+          - { label: "Eyebrow tag above the heading (English)", name: "eyebrow_en", widget: "string" }
+          - { label: "Page heading (German)", name: "pagetitle_de", widget: "string" }
+          - { label: "Page heading (English)", name: "pagetitle_en", widget: "string" }
+          - { label: "Page lead paragraph (German)", name: "pagelead_de", widget: "text" }
+          - { label: "Page lead paragraph (English)", name: "pagelead_en", widget: "text" }
+          - { label: "Body paragraph 1 (German)", name: "p1_de", widget: "text" }
+          - { label: "Body paragraph 1 (English)", name: "p1_en", widget: "text" }
+          - { label: "Body paragraph 2 (German)", name: "p2_de", widget: "text" }
+          - { label: "Body paragraph 2 (English)", name: "p2_en", widget: "text" }
+          - { label: "Body paragraph 3 (German)", name: "p3_de", widget: "text" }
+          - { label: "Body paragraph 3 (English)", name: "p3_en", widget: "text" }
+
+
   - name: "experts"
     label: "Expert profiles"
     folder: "content/experts"
