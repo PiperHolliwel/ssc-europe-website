@@ -28,7 +28,7 @@
 <a class="ssc-navlink" href="/en/press/">Press</a>
 <a class="ssc-navlink" href="/en/links/">Links</a>
 <a aria-current="page" class="ssc-navcta w--current" href="/en/contact/">Contact</a><span class="ssc-lang">
-<a class="ssc-lang-off-first" href="/">DE</a><span class="ssc-lang-on-second">EN</span>
+<a class="ssc-lang-off-first" href="/datenschutz/">DE</a><span class="ssc-lang-on-second">EN</span>
 </span>
 </nav>
 </div>
@@ -83,7 +83,7 @@ Protection Authority.</p>
 <p class="ssc-flag">⚠️ This privacy policy is newly drafted, since no reusable text survived
 from the old Jimdo/Webflow site and it would have described the previous, now-replaced
 technology anyway. It describes the current, self-hosted setup (Cloudflare Pages + Formspree,
-no cookies/no tracking, as of 2026-09-01). Please have it reviewed by a lawyer before
+no cookies/no tracking, as of 2026-09-02). Please have it reviewed by a lawyer before
 publishing — this is not legal advice.</p>
 </div>
 </div>
@@ -121,7 +121,7 @@ publishing — this is not legal advice.</p>
 <div class="ssc-footer-base">
 <div class="ssc-footer-copy">© 2011–2026 SSC Europe</div>
 <div class="ssc-lang">
-<a class="ssc-lang-off-first" href="/">DE</a><span class="ssc-lang-on-f">EN</span>
+<a class="ssc-lang-off-first" href="/datenschutz/">DE</a><span class="ssc-lang-on-f">EN</span>
 </div>
 </div>
 </div>
@@ -143,7 +143,10 @@ publishing — this is not legal advice.</p>
     ['/formate',       '/en/formats'],
     ['/presse',        '/en/press'],
     ['/links',         '/en/links'],
-    ['/kontakt',       '/en/contact']
+    ['/kontakt',       '/en/contact'],
+    ['/impressum',     '/en/impressum'],
+    ['/datenschutz',   '/en/datenschutz'],
+    ['/presse/pressemitteilungen', '/en/press/press-releases']
   ];
   var D2E = {}, E2D = {};
   for (var i = 0; i < PAIRS.length; i++) {
@@ -160,13 +163,15 @@ publishing — this is not legal advice.</p>
   function counterpart(){
     var p = norm(window.location.pathname);
     if (isEnglish(p)) {
-      var en = p.match(/^\/experts\/(.+)$/);
+      var en = p.match(/^\/experts\/([^\/]+)$/);
       if (en) return '/expertinnen/' + en[1];
       if (p === '/experts') return '/expertinnen';
       if (p === '/en') return '/';
       return E2D[p] || '/';
     }
-    var de = p.match(/^\/expertinnen\/(.+)$/);
+    var deSub = p.match(/^\/expertinnen\/([^\/]+)\/(lebenslauf|publikationen)$/);
+    if (deSub) return '/experts/' + deSub[1];
+    var de = p.match(/^\/expertinnen\/([^\/]+)$/);
     if (de) return '/experts/' + de[1];
     return D2E[p] || '/en/home';
   }

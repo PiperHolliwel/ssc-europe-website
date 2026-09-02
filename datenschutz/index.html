@@ -27,7 +27,7 @@
 <a class="ssc-navlink" href="/presse/">Presse</a>
 <a class="ssc-navlink" href="/links/">Links</a>
 <a aria-current="page" class="ssc-navcta w--current" href="/kontakt/">Kontakt</a><span class="ssc-lang"><span class="ssc-lang-on">DE</span>
-<a class="ssc-lang-off" href="/en/home/">EN</a>
+<a class="ssc-lang-off" href="/en/datenschutz/">EN</a>
 </span>
 </nav>
 </div>
@@ -85,7 +85,7 @@ beschweren, z. B. bei der österreichischen Datenschutzbehörde.</p>
 <p class="ssc-flag">⚠️ Diese Datenschutzerklärung wurde neu erstellt, da von der alten
 Jimdo/Webflow-Seite kein übernehmbarer Text vorlag und dieser ohnehin die frühere, inzwischen
 abgelöste Technik beschrieben hätte. Sie beschreibt den aktuellen, selbst gehosteten Stand
-(Cloudflare Pages + Formspree, keine Cookies/kein Tracking, Stand 2026-09-01). Bitte vor
+(Cloudflare Pages + Formspree, keine Cookies/kein Tracking, Stand 2026-09-02). Bitte vor
 Veröffentlichung anwaltlich prüfen lassen — dies ist keine Rechtsberatung.</p>
 </div>
 </div>
@@ -124,7 +124,7 @@ Veröffentlichung anwaltlich prüfen lassen — dies ist keine Rechtsberatung.</
 <div class="ssc-footer-base">
 <div class="ssc-footer-copy">© 2011–2026 SSC Europe</div>
 <div class="ssc-lang"><span class="ssc-lang-on-f">DE</span>
-<a class="ssc-lang-off" href="/en/home/">EN</a>
+<a class="ssc-lang-off" href="/en/datenschutz/">EN</a>
 </div>
 </div>
 </div>
@@ -146,7 +146,10 @@ Veröffentlichung anwaltlich prüfen lassen — dies ist keine Rechtsberatung.</
     ['/formate',       '/en/formats'],
     ['/presse',        '/en/press'],
     ['/links',         '/en/links'],
-    ['/kontakt',       '/en/contact']
+    ['/kontakt',       '/en/contact'],
+    ['/impressum',     '/en/impressum'],
+    ['/datenschutz',   '/en/datenschutz'],
+    ['/presse/pressemitteilungen', '/en/press/press-releases']
   ];
   var D2E = {}, E2D = {};
   for (var i = 0; i < PAIRS.length; i++) {
@@ -163,13 +166,15 @@ Veröffentlichung anwaltlich prüfen lassen — dies ist keine Rechtsberatung.</
   function counterpart(){
     var p = norm(window.location.pathname);
     if (isEnglish(p)) {
-      var en = p.match(/^\/experts\/(.+)$/);
+      var en = p.match(/^\/experts\/([^\/]+)$/);
       if (en) return '/expertinnen/' + en[1];
       if (p === '/experts') return '/expertinnen';
       if (p === '/en') return '/';
       return E2D[p] || '/';
     }
-    var de = p.match(/^\/expertinnen\/(.+)$/);
+    var deSub = p.match(/^\/expertinnen\/([^\/]+)\/(lebenslauf|publikationen)$/);
+    if (deSub) return '/experts/' + deSub[1];
+    var de = p.match(/^\/expertinnen\/([^\/]+)$/);
     if (de) return '/experts/' + de[1];
     return D2E[p] || '/en/home';
   }
