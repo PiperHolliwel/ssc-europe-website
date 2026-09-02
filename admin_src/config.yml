@@ -39,6 +39,8 @@ collections:
   - name: "experts"
     label: "Expert profiles"
     folder: "content/experts"
+    extension: "yml"
+    format: "yml"
     create: true
     slug: "{{slug}}"
     identifier_field: "slug"
