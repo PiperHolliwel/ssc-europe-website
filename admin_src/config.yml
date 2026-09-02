@@ -1,0 +1,60 @@
+backend:
+  name: github
+  repo: PiperHolliwel/ssc-europe-website
+  branch: main
+  # Replace with your deployed OAuth Worker's URL (see README ->
+  # "Setting up the content editor"). Example: https://ssc-oauth.olena.workers.dev
+  base_url: https://REPLACE-WITH-YOUR-WORKER-URL.workers.dev
+  auth_endpoint: auth
+
+# Every edit made through this editor is committed straight to the "main"
+# branch, which is exactly what's live on the site (there's no build step
+# to review a draft first) — so changes go live as soon as Cloudflare Pages
+# finishes rebuilding, usually well under a minute after saving here.
+publish_mode: simple
+
+media_folder: "images/experts"
+public_folder: "/images/experts"
+
+collections:
+  - name: "settings"
+    label: "Contact info & address"
+    delete: false
+    editor:
+      preview: false
+    files:
+      - name: "settings"
+        label: "Contact details"
+        file: "content/settings.yml"
+        fields:
+          - { label: "Organization name (footer)", name: "org_name", widget: "string" }
+          - { label: "Contact person (Kontakt page)", name: "contact_person", widget: "string" }
+          - { label: "Street & house number", name: "street", widget: "string" }
+          - { label: "City line (German pages)", name: "city_de", widget: "string" }
+          - { label: "City line (English pages)", name: "city_en", widget: "string" }
+          - { label: "Email address", name: "email", widget: "string" }
+          - { label: "Phone number (as shown to visitors)", name: "phone_display", widget: "string" }
+          - { label: "Phone number (for click-to-call links, digits only, e.g. +493065791250)", name: "phone_tel", widget: "string" }
+
+  - name: "experts"
+    label: "Expert profiles"
+    folder: "content/experts"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "slug"
+    editor:
+      preview: false
+    fields:
+      - { label: "URL slug (letters/numbers/hyphens only, no spaces — changing this changes the profile's web address)", name: "slug", widget: "string", pattern: ['^[a-z0-9-]+$', "Lowercase letters, numbers, and hyphens only"] }
+      - { label: "Display order (lower numbers show first in the experts grid)", name: "display_order", widget: "number", value_type: "int" }
+      - { label: "Photo", name: "photo", widget: "image" }
+      - { label: "Email", name: "email", widget: "string" }
+      - { label: "Phone", name: "phone", widget: "string", required: false }
+      - { label: "Name (German)", name: "name_de", widget: "string" }
+      - { label: "Name (English)", name: "name_en", widget: "string" }
+      - { label: "Areas of expertise (German)", name: "expertise_de", widget: "text" }
+      - { label: "Areas of expertise (English)", name: "expertise_en", widget: "text" }
+      - { label: "Bio (German)", name: "bio_de", widget: "markdown", required: false }
+      - { label: "Bio (English)", name: "bio_en", widget: "markdown", required: false }
+      - { label: "Activities & talks (German)", name: "activity_history_de", widget: "markdown", required: false }
+      - { label: "Activities & talks (English)", name: "activity_history_en", widget: "markdown", required: false }
