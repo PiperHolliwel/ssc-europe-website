@@ -4,7 +4,7 @@ backend:
   branch: main
   # Replace with your deployed OAuth Worker's URL (see README ->
   # "Setting up the content editor"). Example: https://ssc-oauth.olena.workers.dev
-  base_url: https://REPLACE-WITH-YOUR-WORKER-URL.workers.dev
+  base_url: https://ssc-cms-auth.olenababii-tests.workers.dev
   auth_endpoint: auth
 
 # Every edit made through this editor is committed straight to the "main"
