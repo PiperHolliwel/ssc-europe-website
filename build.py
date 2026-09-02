@@ -150,6 +150,87 @@ LEGAL_PAGES_EN = {
     "/datenschutz": "/en/datenschutz/",
 }
 
+# Every page carries its own inline copy of a small hand-written language-
+# switcher script (not part of Webflow's export — added in an earlier pass)
+# that recomputes the DE<->EN toggle link's href AT RUNTIME from the current
+# URL, via its own PAIRS table. That means the static href fixed on the <a>
+# tag at build time (see apply_lang_switch below) gets immediately overwritten
+# the moment the page loads — so the script's OWN table has to know about
+# every page too, or it silently reverts newer pages (Impressum, Datenschutz,
+# Pressemitteilungen) back to the homepage fallback. This patches that inline
+# script, in every page that carries it, to add those pages and to fix the
+# expert-subpage regex (it was capturing the *whole* remainder of the path,
+# so /expertinnen/{slug}/lebenslauf would wrongly compute a non-existent
+# /experts/{slug}/lebenslauf instead of the sibling profile page).
+LANG_JS_PAIRS_OLD = r"""var PAIRS = [
+    ['/',              '/en/home'],
+    ['/aktuelles',     '/en/news'],
+    ['/ueber-uns',     '/en/about'],
+    ['/seminare',      '/en/seminars'],
+    ['/simulationen',  '/en/simulations'],
+    ['/consulting',    '/en/consulting'],
+    ['/expertinnen',   '/en/experts'],
+    ['/formate',       '/en/formats'],
+    ['/presse',        '/en/press'],
+    ['/links',         '/en/links'],
+    ['/kontakt',       '/en/contact']
+  ];"""
+
+LANG_JS_PAIRS_NEW = r"""var PAIRS = [
+    ['/',              '/en/home'],
+    ['/aktuelles',     '/en/news'],
+    ['/ueber-uns',     '/en/about'],
+    ['/seminare',      '/en/seminars'],
+    ['/simulationen',  '/en/simulations'],
+    ['/consulting',    '/en/consulting'],
+    ['/expertinnen',   '/en/experts'],
+    ['/formate',       '/en/formats'],
+    ['/presse',        '/en/press'],
+    ['/links',         '/en/links'],
+    ['/kontakt',       '/en/contact'],
+    ['/impressum',     '/en/impressum'],
+    ['/datenschutz',   '/en/datenschutz'],
+    ['/presse/pressemitteilungen', '/en/press/press-releases']
+  ];"""
+
+LANG_JS_COUNTERPART_OLD = r"""function counterpart(){
+    var p = norm(window.location.pathname);
+    if (isEnglish(p)) {
+      var en = p.match(/^\/experts\/(.+)$/);
+      if (en) return '/expertinnen/' + en[1];
+      if (p === '/experts') return '/expertinnen';
+      if (p === '/en') return '/';
+      return E2D[p] || '/';
+    }
+    var de = p.match(/^\/expertinnen\/(.+)$/);
+    if (de) return '/experts/' + de[1];
+    return D2E[p] || '/en/home';
+  }"""
+
+LANG_JS_COUNTERPART_NEW = r"""function counterpart(){
+    var p = norm(window.location.pathname);
+    if (isEnglish(p)) {
+      var en = p.match(/^\/experts\/([^\/]+)$/);
+      if (en) return '/expertinnen/' + en[1];
+      if (p === '/experts') return '/expertinnen';
+      if (p === '/en') return '/';
+      return E2D[p] || '/';
+    }
+    var deSub = p.match(/^\/expertinnen\/([^\/]+)\/(lebenslauf|publikationen)$/);
+    if (deSub) return '/experts/' + deSub[1];
+    var de = p.match(/^\/expertinnen\/([^\/]+)$/);
+    if (de) return '/experts/' + de[1];
+    return D2E[p] || '/en/home';
+  }"""
+
+def patch_lang_switch_js(soup):
+    for script in soup.find_all("script"):
+        text = script.string
+        if text and "var PAIRS = [" in text:
+            new_text = text.replace(LANG_JS_PAIRS_OLD, LANG_JS_PAIRS_NEW) \
+                            .replace(LANG_JS_COUNTERPART_OLD, LANG_JS_COUNTERPART_NEW)
+            script.string = new_text
+
 def rewrite_links_in_soup(soup, is_en_source):
     for tag in soup.find_all(["a"]):
         href = tag.get("href")
@@ -199,6 +280,7 @@ def rewrite_links_in_soup(soup, is_en_source):
                 tag["src"] = mapped
     for tag in soup.find_all(["a"], class_="ssc-brand"):
         pass  # brand links already handled by the generic <a> loop above
+    patch_lang_switch_js(soup)
     apply_settings(soup, is_en_source)
 
 def write_page(out_folder: str, html_text: str):
