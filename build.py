@@ -209,6 +209,56 @@ def write_page(out_folder: str, html_text: str):
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(html_text, encoding="utf-8")
 
+# --- 1b. Language switcher: same page, not the homepage ---------------------
+# Webflow's export hard-codes the DE<->EN toggle link on every single page to
+# the OTHER language's homepage (en/home.html from every German page, and
+# index.html from every English page) — so switching language always dumped
+# visitors back on the homepage instead of keeping them on the page they were
+# reading. This maps each DE clean path to its real EN counterpart (and back),
+# and overwrites the toggle link's href with that, page by page. Pages with no
+# counterpart in the other language (the English-only "Former Projects" page,
+# the German-only CV/Publications sub-pages) fall back to that language's
+# homepage, since there's genuinely nothing more specific to link to.
+LANG_PAIR_DE_TO_EN = {
+    "": "en/home",
+    "aktuelles": "en/news",
+    "ueber-uns": "en/about",
+    "expertinnen": "en/experts",
+    "formate": "en/formats",
+    "presse": "en/press",
+    "links": "en/links",
+    "kontakt": "en/contact",
+    "seminare": "en/seminars",
+    "simulationen": "en/simulations",
+    "consulting": "en/consulting",
+    "impressum": "en/impressum",
+    "datenschutz": "en/datenschutz",
+    "presse/pressemitteilungen": "en/press/press-releases",
+}
+LANG_PAIR_EN_TO_DE = {v: k for k, v in LANG_PAIR_DE_TO_EN.items()}
+DEFAULT_DE_HOME = ""
+DEFAULT_EN_HOME = "en/home"
+
+def _clean_path(clean):
+    return "/" + clean + "/" if clean else "/"
+
+def lang_switch_target(current_clean, is_en_source):
+    """The clean root-relative path the language toggle on this page should
+    point to: the equivalent page in the other language, or that language's
+    homepage if this page has no counterpart."""
+    if is_en_source:
+        counterpart = LANG_PAIR_EN_TO_DE.get(current_clean, DEFAULT_DE_HOME)
+    else:
+        counterpart = LANG_PAIR_DE_TO_EN.get(current_clean, DEFAULT_EN_HOME)
+    return _clean_path(counterpart)
+
+def apply_lang_switch(soup, current_clean, is_en_source, explicit_target=None):
+    target = explicit_target if explicit_target is not None else lang_switch_target(current_clean, is_en_source)
+    for a in soup.find_all("a", class_="ssc-lang-off"):
+        a["href"] = target
+    for a in soup.find_all("a", class_="ssc-lang-off-first"):
+        a["href"] = target
+
 # --- 2. Load expert data -----------------------------------------------------
 # Editable via the CMS: one YAML file per expert under content/experts/,
 # originally generated from the Webflow CMS export but now the source of
@@ -277,6 +327,7 @@ for src_file, clean in PAGE_MAP.items():
     soup = BeautifulSoup(path.read_text(encoding="utf-8"), "html.parser")
     is_en = src_file.startswith("en/")
     rewrite_links_in_soup(soup, is_en)
+    apply_lang_switch(soup, clean, is_en)
 
     # Contact form -> Formspree
     form = soup.find("form")
@@ -313,6 +364,7 @@ def build_listing(list_file, items, lang):
     soup = BeautifulSoup(path.read_text(encoding="utf-8"), "html.parser")
     is_en = list_file.startswith("en/")
     rewrite_links_in_soup(soup, is_en)
+    apply_lang_switch(soup, PAGE_MAP[list_file], is_en)
 
     item_tpl = soup.find(attrs={"role": "listitem"})
     dyn_list = item_tpl.find_parent(class_="w-dyn-items")
@@ -431,11 +483,17 @@ def extract_section(md_text, header):
         return None, None
     return block, flag
 
-def page_shell(title, lang, body_inner):
-    """Wrap body_inner in the site's nav+footer using kontakt.html/en/contact.html as the shell."""
+def page_shell(title, lang, body_inner, clean=None, switch_target=None):
+    """Wrap body_inner in the site's nav+footer using kontakt.html/en/contact.html as the shell.
+    Pass `clean` (this page's own clean path, e.g. "impressum") to point the
+    language toggle at its real counterpart, or `switch_target` to point it
+    somewhere more specific (e.g. an expert's own profile page) when there's
+    no page-to-page pairing to look up."""
     shell_src = "kontakt.html" if lang == "de" else "en/contact.html"
     soup = BeautifulSoup((SRC / shell_src).read_text(encoding="utf-8"), "html.parser")
     rewrite_links_in_soup(soup, lang == "en")
+    if clean is not None or switch_target is not None:
+        apply_lang_switch(soup, clean, lang == "en", explicit_target=switch_target)
     soup.title.string = f"{title} | SSC Europe"
     md = soup.find("meta", attrs={"name": "description"})
     if md:
@@ -469,7 +527,8 @@ for it in de_items:
         inner = CONTENT_PAGE_TEMPLATE.format(
             back_href=f"/expertinnen/{slug}/", back_label=name,
             title=f"Lebenslauf {name}", body_html=body_html)
-        write_page(f"expertinnen/{slug}/lebenslauf", page_shell(f"Lebenslauf {name}", "de", inner))
+        write_page(f"expertinnen/{slug}/lebenslauf", page_shell(f"Lebenslauf {name}", "de", inner,
+            switch_target=f"/experts/{slug}/"))
         made_cv += 1
 
     pub_body, pub_flag = extract_section(md_text, "Publications / Publikationen")
@@ -480,7 +539,8 @@ for it in de_items:
         inner = CONTENT_PAGE_TEMPLATE.format(
             back_href=f"/expertinnen/{slug}/", back_label=name,
             title=f"Publikationen {name}", body_html=body_html)
-        write_page(f"expertinnen/{slug}/publikationen", page_shell(f"Publikationen {name}", "de", inner))
+        write_page(f"expertinnen/{slug}/publikationen", page_shell(f"Publikationen {name}", "de", inner,
+            switch_target=f"/experts/{slug}/"))
         made_pub += 1
 
 print(f"Wrote {made_cv} CV pages and {made_pub} Publications pages (German source only).")
@@ -495,6 +555,11 @@ def fill_detail(template_file, items, lang):
         name = fd.get("name", "")
         soup = BeautifulSoup((SRC / template_file).read_text(encoding="utf-8"), "html.parser")
         rewrite_links_in_soup(soup, lang == "en")
+        # Each expert's profile exists in both languages at the same slug, so
+        # the language toggle can point straight at the sibling profile
+        # instead of falling back to that language's homepage.
+        sibling = f"/experts/{slug}/" if lang == "de" else f"/expertinnen/{slug}/"
+        apply_lang_switch(soup, None, lang == "en", explicit_target=sibling)
 
         soup.title.string = f"{name} | SSC Europe"
         md = soup.find("meta", attrs={"name": "description"})
@@ -629,7 +694,8 @@ Veröffentlichung mit der Originalseite bzw. anwaltlich abgleichen.</p>
 
 write_page("impressum", page_shell("Impressum", "de",
     CONTENT_PAGE_TEMPLATE.format(back_href="/", back_label="Startseite",
-                                  title="Impressum", body_html=IMPRESSUM_BODY)))
+                                  title="Impressum", body_html=IMPRESSUM_BODY),
+    clean="impressum"))
 print("Wrote Impressum page (reconstructed from recovered facts — flagged for review).")
 
 # --- 6c. Impressum (English) --------------------------------------------------
@@ -681,7 +747,8 @@ by a lawyer before publishing.</p>
 
 write_page("en/impressum", page_shell("Legal Notice", "en",
     CONTENT_PAGE_TEMPLATE.format(back_href="/en/home/", back_label="Home",
-                                  title="Legal Notice", body_html=IMPRESSUM_BODY_EN)))
+                                  title="Legal Notice", body_html=IMPRESSUM_BODY_EN),
+    clean="en/impressum"))
 print("Wrote English Impressum page.")
 
 # --- 6d. Datenschutz / Privacy policy (German + English) ---------------------
@@ -808,11 +875,13 @@ _build_date = _date.today().strftime("%Y-%m-%d")
 write_page("datenschutz", page_shell("Datenschutzerklärung", "de",
     CONTENT_PAGE_TEMPLATE.format(back_href="/", back_label="Startseite",
                                   title="Datenschutzerklärung",
-                                  body_html=DATENSCHUTZ_BODY.format(build_date=_build_date))))
+                                  body_html=DATENSCHUTZ_BODY.format(build_date=_build_date)),
+    clean="datenschutz"))
 write_page("en/datenschutz", page_shell("Privacy Policy", "en",
     CONTENT_PAGE_TEMPLATE.format(back_href="/en/home/", back_label="Home",
                                   title="Privacy Policy",
-                                  body_html=DATENSCHUTZ_BODY_EN.format(build_date=_build_date))))
+                                  body_html=DATENSCHUTZ_BODY_EN.format(build_date=_build_date)),
+    clean="en/datenschutz"))
 # --- 6e. Pressemitteilungen / Press Releases (German + English) -------------
 # This whole section existed on the old Jimdo site as a sub-page linked from
 # Presse/Press ("Pressemitteilungen" / "Press Releases", 2012-2013 org
@@ -940,10 +1009,12 @@ carried over.</p>
 
 write_page("presse/pressemitteilungen", page_shell("Pressemitteilungen", "de",
     CONTENT_PAGE_TEMPLATE.format(back_href="/presse/", back_label="Presse",
-                                  title="Pressemitteilungen", body_html=PRESSEMITTEILUNGEN_BODY)))
+                                  title="Pressemitteilungen", body_html=PRESSEMITTEILUNGEN_BODY),
+    clean="presse/pressemitteilungen"))
 write_page("en/press/press-releases", page_shell("Press Releases", "en",
     CONTENT_PAGE_TEMPLATE.format(back_href="/en/press/", back_label="Press",
-                                  title="Press Releases", body_html=PRESSEMITTEILUNGEN_BODY_EN)))
+                                  title="Press Releases", body_html=PRESSEMITTEILUNGEN_BODY_EN),
+    clean="en/press/press-releases"))
 print("Wrote German + English Pressemitteilungen/Press Releases pages (recovered from Jimdo — flagged for review).")
 
 print("Wrote German + English Datenschutz/Privacy pages (freshly drafted — flagged for review).")
